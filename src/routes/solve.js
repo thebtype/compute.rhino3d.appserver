@@ -144,6 +144,7 @@ function commonSolve (req, res, next){
     const timePreComputeServerCall = performance.now()
     let computeServerTiming = null
 
+    
     // call compute server
     compute.Grasshopper.evaluateDefinition(definitionPath, trees, false).then( (response) => {
         
