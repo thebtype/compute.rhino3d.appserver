@@ -1,4 +1,4 @@
-!/* eslint no-undef: "off", no-unused-vars: "off" */
+//* eslint no-undef: "off", no-unused-vars: "off" */
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/controls/OrbitControls.js";
 import { Rhino3dmLoader } from "https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/loaders/3DMLoader.js";
@@ -59,16 +59,46 @@ async function compute() {
   } catch (error) {
     console.error(error);
   }
+
+  
+
 }
 
 
 /**
  * Parse response
  */
-function collectResults(responseJson) {
-  const values = responseJson.values;
+ function collectResults(responseJson) {
+    const values = responseJson.values;
+  
+    console.log(values);
+  
+    // clear doc
+    try {
+      if (doc !== undefined) doc.delete();
+    } catch {}
+  
+  
+    // for each output (RH_OUT:*)...
+    for (let i = 0; i < values.length; i++) {
+      // ...iterate through data tree structure...
+      for (const path in values[i].InnerTree) {
+        const branch = values[i].InnerTree[path];
+        // ...and for each branch...
+        for (let j = 0; j < branch.length; j++) {
+          // ...load rhino geometry into doc
+          const rhinoObject = decodeItem(branch[j]);
+          if (rhinoObject !== null) {
+            console.log(rhinoObject)
+            
+          }
+        }
+      }
+    }
+  
 
-  console.log(values);
+  }
+
 
 /**
  * Attempt to decode data tree item to rhino geometry
