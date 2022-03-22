@@ -40,7 +40,8 @@
   "scripts": {
     "start": "node ./src/bin/www",
     "lint": "eslint src/*.js --fix && eslint src/routes/*.js --fix && eslint src/bin/www --fix",
-    "start-args": "node ./src/bin/www --computeUrl http://localhost:8081/"
+    "start-args": "node ./src/bin/www --computeUrl http://localhost:8081/",
+    "startdev": "nodemon -e js,html,gh ./src/bin/www"
   },
   "dependencies": {
     "camelcase-keys": "^6.2.2",
@@ -60,6 +61,8 @@
     "throng": "4.0.0"
   },
   "devDependencies": {
-    "eslint": "8.7.0"
+    "eslint": "8.7.0",
+    "nodemon": "2.0.15"
+
   }
 }

@@ -1,67 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="icon" href="data:,">
-        <title>hull.gh</title>
-        <style>
-/* /////////////////////////////////////////////////////////////////////////// */
-            body {
-                margin: 0;
-                font-family: monospace;
-                color: #f3f3f3;
-            }
-/* /////////////////////////////////////////////////////////////////////////// */
-            canvas { width: 100%; height: 100%; }
-            input[type=range] { width: 100%; }
-            #container { position: relative; }
-            #container canvas, #overlay { position: absolute; }
-            #overlay { z-index: 1; width: 100%; }
-/* /////////////////////////////////////////////////////////////////////////// */
-            #overlay div {
-              padding: 5px;
-              text-align-last: center;
-              }
-/* /////////////////////////////////////////////////////////////////////////// */
-            #loader {
-                border: 5px solid #f3f3f3; /* Light grey */
-                border-top: 5px solid #3d3d3d; /* Grey */
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                z-index: 2;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
-    </head>
-    <body>
-        <div id="loader"></div> 
-        <div id="container">
-            <div id="overlay">
-<!-- /////////////////////////////////////////////////////////////////////////// -->
-                <div>
-                    <h1>Upload 3DM file</h1>
-                    <input type="file" accept=".3dm" id="file-input" />
-                </div>
-                <div id="msg">Choose a .3dm file that has breps and/or extrusions ☝</div>
-                <div><button id="downloadButton" disabled>Download</button></div>
-                <!-- <div><a href="hull.gh" download="hull.gh.html">Save source code</a></div> -->
-<!-- /////////////////////////////////////////////////////////////////////////// -->
-            </div>
-        </div>
-
-        <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.module.js'
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/controls/OrbitControls.js'
-import { Rhino3dmLoader } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/loaders/3DMLoader.js'
-import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/rhino3dm.module.js'
+// Import libraries - use the latest 3dm
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.137.5/examples/jsm/controls/OrbitControls.js";
+import rhino3dm from "https://cdn.jsdelivr.net/npm/rhino3dm@7.11.1/rhino3dm.module.js";
+import { Rhino3dmLoader } from "https://cdn.jsdelivr.net/npm/three@0.137.5/examples/jsm/loaders/3DMLoader.js";
 
 // set up loader for converting the results to threejs
 const loader = new Rhino3dmLoader()
@@ -71,9 +12,12 @@ loader.setLibraryPath( 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/' )
 const data = {
   definition: 'geo_upload.gh',
   inputs: {
-    Lines: []
-  }
+    'Lines': [], // start with an empty list (corresponds to "points" input)
+    'Points': [],  
+    'Breps': []
 }
+}
+
 
 // globals
 let rhino, doc
@@ -112,21 +56,31 @@ async function readSingleFile(e) {
 
   // get geometry from file
   const objs = uploadDoc.objects()
-  const geometry = []
+  const geoLines = []
+  const geoPoints = []
+  const geoBreps = []
+
   for (let i = 0; i < objs.count; i++) {
     const geom = objs.get(i).geometry()
     // filter for geometry of a specific type
-    if (geom instanceof rhino.Brep  || geom instanceof rhino.Extrusion || geom instanceof rhino.Curve) {
-      geometry.push(JSON.stringify(geom))
+    if (geom instanceof rhino.Curve) {
+        geoLines.push(JSON.stringify(geom.encode()))
+    }
+    if (geom instanceof rhino.Point) {
+        geoPoints.push(JSON.stringify(geom))
     }
 
+    if (geom instanceof rhino.Brep || geom instanceof rhino.Extrusion) {
+        geoBreps.push(JSON.stringify(geom))
+      }
     
   }
-  console.log(geometry)
   
-
   // solve!
-  data.inputs.Lines = geometry
+  data.inputs.Lines = geoLines
+  data.inputs.Points = geoPoints
+  data.inputs.Breps = geoBreps
+  
   compute()
 }
 
@@ -230,9 +184,6 @@ async function compute() {
     }
 
     const responseJson = await response.json()
-
-    console.log(responseJson)
-
     collectResults(responseJson)
 
   } catch(error) {
@@ -281,10 +232,6 @@ function collectResults(responseJson) {
     const countAfter = doc.objects().count
     document.getElementById('msg').innerText = `${countBefore} breps become ${countAfter}!`
 
-    // hack (https://github.com/mcneel/rhino3dm/issues/353)
-    const sphereAttrs = new rhino.ObjectAttributes()
-    sphereAttrs.mode = rhino.ObjectMode.Hidden
-    doc.objects().addSphere(new rhino.Sphere([0,0,0], 0.001), sphereAttrs)
 ///////////////////////////////////////////////////////////////////////////
 
     // load rhino doc into three.js scene
@@ -293,10 +240,22 @@ function collectResults(responseJson) {
     {
 ///////////////////////////////////////////////////////////////////////////
         object.traverse(child => {
+        
           if (child.isMesh)
             child.material = new THREE.MeshNormalMaterial({ wireframe: true })
-        }, false)
-///////////////////////////////////////////////////////////////////////////
+
+            if (child.isLine) {
+
+                const threeColor = new THREE.Color("white");
+                const mat = new THREE.LineBasicMaterial({ color: threeColor });
+                child.material = mat;
+            
+            
+            }
+        
+            }, false)
+        ///////////////////////////////////////////////////////////////////////////
+
 
         // clear objects from scene. do this here to avoid blink
         scene.traverse(child => {
@@ -333,32 +292,6 @@ function decodeItem(item) {
   return null
 }
 
-/**
- * Called when a slider value changes in the UI. Collect all of the
- * slider values and call compute to solve for a new scene
- */
-// function onSliderChange () {
-//   showSpinner(true)
-//   // get slider values
-//   let inputs = {}
-//   for (const input of document.getElementsByTagName('input')) {
-//     switch (input.type) {
-//     case 'number':
-//       inputs[input.id] = input.valueAsNumber
-//       break
-//     case 'range':
-//       inputs[input.id] = input.valueAsNumber
-//       break
-//     case 'checkbox':
-//       inputs[input.id] = input.checked
-//       break
-//     }
-//   }
-  
-//   data.inputs = inputs
-
-//   compute()
-// }
 
 /**
  * The animation loop!
@@ -440,6 +373,3 @@ function showSpinner(enable) {
   else
     document.getElementById('loader').style.display = 'none'
 }
-        </script>
-    </body>
-</html>
