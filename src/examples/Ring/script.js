@@ -100,7 +100,7 @@ function init() {
     let cubeMap
 
    cubeMap = new HDRCubeTextureLoader()
-         .setPath( '.assets/' )
+         .setPath( 'assets/' )
          .setDataType( THREE.UnsignedByteType )
          .load( [ 'px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr' ] )
 
