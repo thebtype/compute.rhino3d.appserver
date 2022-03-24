@@ -4,6 +4,16 @@ import { Rhino3dmLoader } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examp
 import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/rhino3dm.module.js'
 
 // set up loader for converting the results to threejs
+const tl = new THREE.TextureLoader()
+    tl.setPath('materials/')
+    const material = new THREE.MeshPhysicalMaterial()
+    material.map          = tl.load('streaked-metal1_base.png')
+    material.aoMmap       = tl.load('streaked-metal1_ao.png')
+    material.normalMap    = tl.load('streaked-metal1_normal.png')
+    material.metalnessMap = tl.load('streaked-metal1_metallic.png')
+    material.metalness = 0.2
+    material.roughness = 0.0
+
 const loader = new Rhino3dmLoader()
 loader.setLibraryPath( 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/' )
 
@@ -86,17 +96,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
 
-    let material, cubeMap
-
-    const tl = new THREE.TextureLoader()
-    tl.setPath('materials/')
-    material = new THREE.MeshPhysicalMaterial()
-    material.map          = tl.load('streaked-metal1_base.png')
-    material.aoMmap       = tl.load('streaked-metal1_ao.png')
-    material.normalMap    = tl.load('streaked-metal1_normal.png')
-    material.metalnessMap = tl.load('streaked-metal1_metallic.png')
-    material.metalness = 0.2
-    material.roughness = 0.0
+    let cubeMap
 
    cubeMap = new THREE.CubeTextureLoader()
         .setPath('assets/')
