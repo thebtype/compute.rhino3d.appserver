@@ -89,7 +89,7 @@ function init() {
     let cubeMap
 
    cubeMap = new THREE.CubeTextureLoader()
-        .setPath('assets/textures/cube/Bridge2/')
+        .setPath('assets/')
         .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] )
 
     // add some controls to orbit the camera
