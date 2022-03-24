@@ -181,7 +181,11 @@ function collectResults(responseJson) {
         
         object.traverse(child => {
           if (child.material !== undefined)
-            child.material = new THREE.MeshNormalMaterial()
+            child.material = new THREE.MeshMeshMaterial( {
+                   color: 0xffffff,
+                   metalness: 0.0,
+                   roughness: 0.0
+               } )
         }, false)
         
 
