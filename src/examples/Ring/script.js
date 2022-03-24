@@ -86,7 +86,17 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
 
-    let cubeMap
+    let material, cubeMap
+
+    const tl = new THREE.TextureLoader()
+    tl.setPath('materials/')
+    material = new THREE.MeshPhysicalMaterial()
+    material.map          = tl.load('streaked-metal1_base.png')
+    material.aoMmap       = tl.load('streaked-metal1_ao.png')
+    material.normalMap    = tl.load('streaked-metal1_normal.png')
+    material.metalnessMap = tl.load('streaked-metal1_metallic.png')
+    material.metalness = 0.2
+    material.roughness = 0.0
 
    cubeMap = new THREE.CubeTextureLoader()
         .setPath('assets/')
@@ -104,6 +114,7 @@ function init() {
     scene.add( ambientLight )
 
     scene.background = cubeMap
+    material.envMap = scene.background
 
     // handle changes in the window size
     window.addEventListener( 'resize', onWindowResize, false )
@@ -181,11 +192,7 @@ function collectResults(responseJson) {
         
         object.traverse(child => {
           if (child.material !== undefined)
-            child.material = new THREE.MeshMeshMaterial( {
-                   color: 0xffffff,
-                   metalness: 0.0,
-                   roughness: 0.0
-               } )
+            child.material = material
         }, false)
         
 
