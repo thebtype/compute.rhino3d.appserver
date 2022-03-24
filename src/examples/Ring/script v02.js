@@ -2,7 +2,6 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.126.0/build/three.m
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/controls/OrbitControls.js'
 import { Rhino3dmLoader } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examples/jsm/loaders/3DMLoader.js'
 import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/rhino3dm.module.js'
-import { HDRCubeTextureLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/HDRCubeTextureLoader.js'
 
 // set up loader for converting the results to threejs
 const tl = new THREE.TextureLoader()
@@ -99,14 +98,9 @@ function init() {
 
     let cubeMap
 
-   cubeMap = new HDRCubeTextureLoader()
-         .setPath( '.assets/' )
-         .setDataType( THREE.UnsignedByteType )
-         .load( [ 'px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr' ] )
-
-   //cubeMap = new THREE.CubeTextureLoader()
-    //    .setPath('assets/')
-     //   .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] )
+   cubeMap = new THREE.CubeTextureLoader()
+        .setPath('assets/')
+        .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] )
 
     // add some controls to orbit the camera
     controls = new OrbitControls(camera, renderer.domElement)
