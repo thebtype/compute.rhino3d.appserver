@@ -4,24 +4,17 @@ import { Rhino3dmLoader } from 'https://cdn.jsdelivr.net/npm/three@0.126.0/examp
 import rhino3dm from 'https://cdn.jsdelivr.net/npm/rhino3dm@0.15.0-beta/rhino3dm.module.js'
 import { HDRCubeTextureLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/HDRCubeTextureLoader.js'
 
-
-let material = new THREE.MeshStandardMaterial( {
-  color: 0xffffff,
-  metalness: 1.0,
-  roughness: 0.0
-} );
-
 // set up loader for converting the results to threejs
-//const tl = new THREE.TextureLoader()
-//    tl.setPath('materials/')
-//    let material = new THREE.MeshPhysicalMaterial()
-//    //material.map          = tl.load('streaked-metal1_base.png')
-//    material.aoMmap       = tl.load('streaked-metal1_ao.png')
-//    material.normalMap    = tl.load('streaked-metal1_normal.png')
-//    material.metalnessMap = tl.load('streaked-metal1_metallic.png')
- //   material.metalness = 1.0
-//    material.roughness = 1.0
-//    material.color.set(0xffcc88)
+const tl = new THREE.TextureLoader()
+    tl.setPath('materials/')
+    let material = new THREE.MeshPhysicalMaterial()
+    //material.map          = tl.load('streaked-metal1_base.png')
+    material.aoMmap       = tl.load('streaked-metal1_ao.png')
+    material.normalMap    = tl.load('streaked-metal1_normal.png')
+    material.metalnessMap = tl.load('streaked-metal1_metallic.png')
+    material.metalness = 1.0
+    material.roughness = 1.0
+    material.color.set(0xffcc88)
 
 //const material = new THREE.MeshPhongMaterial( {
   //       color: 0xffffff,
@@ -107,8 +100,6 @@ function init() {
 
     // create the renderer and add it to the html
     renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.physicallyCorrectLights = true;
-		renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.setPixelRatio( window.devicePixelRatio )
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
