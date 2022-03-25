@@ -105,8 +105,8 @@ function init() {
          .load( [ 'px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr' ] )
 
    //cubeMap = new THREE.CubeTextureLoader()
-    //    .setPath('assets/')
-     //   .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] )
+     //   .setPath('assets/')
+       // .load( [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ] )
 
     // add some controls to orbit the camera
     controls = new OrbitControls(camera, renderer.domElement)
